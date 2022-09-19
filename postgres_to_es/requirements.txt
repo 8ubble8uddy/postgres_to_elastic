@@ -1,0 +1,5 @@
+psycopg2-binary==2.9
+elasticsearch==7.17.4
+redis==4.3.4
+pydantic==1.9.1
+python-dotenv==0.20

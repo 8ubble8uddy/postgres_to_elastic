@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13.0-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./movies_database.sql:/docker-entrypoint-initdb.d/movies_database.sql
+      - pg_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elastic:
+    image: elasticsearch:7.17.5
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    env_file:
+      - ./.env
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - rds_data:/data
+  
+  app:
+    build: ../postgres_to_es/
+    ports:
+      - "8000:8000"
+    depends_on:
+      elastic:
+        condition: service_started
+      redis:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+
+
+volumes:
+  pg_data:
+  es_data:
+  rds_data:
