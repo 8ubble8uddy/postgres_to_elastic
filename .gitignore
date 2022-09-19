@@ -2,3 +2,4 @@
 __pycache__
 .env
 main.log
+.DS_Store
